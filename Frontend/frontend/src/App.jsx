@@ -5,6 +5,7 @@ import {Toaster} from 'react-hot-toast'
 import { useEffect } from "react"
 import { ProtectedRoute } from "./components/protectedRoute"
 import PublicRoute from "./components/publicRoute"
+import SelectRole from "./pages/SelectRole"
 function App() {
   // useEffect(()=>{
   //   localStorage.clear()
@@ -17,7 +18,8 @@ function App() {
        <Route path="/login" element={<Login/>}/>
         </Route>
         <Route element={<ProtectedRoute/>}>
-        <Route pa th="/" element={<Home/>}/>       
+        <Route path="/" element={<Home/>}/>   
+        <Route path="select-role" element={<SelectRole/>}/>    
         </Route>
       </Routes>
       <Toaster/>
