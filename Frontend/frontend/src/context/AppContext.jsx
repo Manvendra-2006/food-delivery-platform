@@ -31,15 +31,42 @@ export function AppProvider({ children }) {
         }
 
     }
-useEffect(()=>{
-    fetchUser()
-},[])
-//  useEffect(()=>{
-//     if(!navigator.geolocation) return alert("Please allow location to continue")
-//         setLoadingLocation(true)
-//     navigator.geolocation.getCurrentPosition(async(position)=>{
-            
-//     })
-//  })
-return <AppContext.Provider value={{isAuth,Loading,setuser,user,setLoading,setisAuth}}>{children}</AppContext.Provider>
+    useEffect(() => {
+        fetchUser()
+    }, [])
+    useEffect(() => {
+
+        if (!navigator.geolocation) return alert("Please allow location to continue")
+        setLoadingLocation(true)
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                console.log(response)
+                const data = await response.json()
+                setLocation(
+                    {
+                        latitude,
+                        longitude,
+                        formattedAddress: data.display_name || "Current Location"
+                    }
+                )
+                setcity(
+                    data.address.city || data.address.town || data.address.village || "Your Location"
+                )
+            }
+            catch (error) {
+                setLocation(
+                    {
+                        latitude,
+                        longitude,
+                        formattedAddress: "Current Location"
+                    }
+                )
+                setcity("Failed to Load")
+                console.log(error)
+            }
+        })
+    },[])
+    return <AppContext.Provider value={{ Location,isAuth, Loading, setuser, user, setLoading, setisAuth,setLocation,setLoadingLocation,LoadingLocation,city,setcity }}>{children}</AppContext.Provider>
 }
