@@ -15,13 +15,13 @@ export async function loginController(req, resp) {
 
         const googleRes = await oauth2client.getToken(code)
 
-console.log("TOKENS:", googleRes.tokens)
+       
         oauth2client.setCredentials(googleRes.tokens)
 
         const userRes = await axios.get(
             `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
         )
-        console.log("GOOGLE USER:", userRes.data)
+        // console.log("GOOGLE USER:", userRes.data)
         const { name, email, picture } = userRes.data
 
         if (!name || !email || !picture) {
@@ -71,7 +71,10 @@ export async function RoleController(req,resp){
         return resp.status(400).json({message:"Token required"})
     }
     const decoded = jwt.verify(token,process.env.JWT_TOKEN)
-    const user = await User.findByIdAndUpdate(decoded.id,{role},{new:true,runValidators: true})
+    console.log("Id vala thumka lago",decoded.id)
+    const user = await User.findByIdAndUpdate(decoded.user._id,{role},{returnDocument:"after",runValidators: true})
+
+    console.log("User pata laga",user)
     if(!user){
         return resp.status(404).json({message:"User not found"})
     }
@@ -94,10 +97,13 @@ export async function AccountDetails(req,resp){
         if(!token){
             return resp.status(400).json({message:"Role Required"})
         }
+        console.log("token mila",token)
         const decoded = jwt.verify(token,process.env.JWT_TOKEN)
-       return resp.status(200).json({message:"Data is fetched successfully",decoded})
+        console.log("data mila",decoded.id)
+        const userData = await User.findOne({_id:decoded.id})
+       return resp.status(200).json({message:"Data is fetched successfully",userData})
     }
     catch(error){
-        return resp.status(500).json({message:"Internaal Server Error"})
+        return resp.status(500).json({message:"Internaal Server Error",error:error.message})
     }
 }
