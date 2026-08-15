@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../main'
@@ -7,9 +7,11 @@ import axios from 'axios'
 import { useGoogleLogin } from '@react-oauth/google'
 import {FcGoogle} from 'react-icons/fc'
 import api from '../../axios'
+import { AppContext } from '../context/AppContext'
 const Login = () => {
     const [loading,setloading] = useState(false)
     const navigate = useNavigate()
+    const {setisAuth,setuser} = useContext(AppContext)
     const responseGoogle = async(authResult)=>{
         setloading(true)
         try{
@@ -19,6 +21,8 @@ const Login = () => {
             localStorage.setItem("token",result.data.token)
             toast.success(result.data.message)
             setloading(false)
+            setuser(result.data.user)
+            setisAuth(true)
             navigate("/")
         }
         catch(error){

@@ -6,6 +6,9 @@ import { useEffect } from "react"
 import { ProtectedRoute } from "./components/protectedRoute"
 import PublicRoute from "./components/publicRoute"
 import SelectRole from "./pages/SelectRole"
+import Navbar from "./components/Navbar"
+import Account from "./pages/Account"
+import Cart from "./pages/Cart"
 function App() {
   // useEffect(()=>{
   //   localStorage.clear()
@@ -13,6 +16,7 @@ function App() {
   return (
     <>
       <BrowserRouter>
+      <Navbar/>
       <Routes>
         <Route element={<PublicRoute/>}>
        <Route path="/login" element={<Login/>}/>
@@ -20,6 +24,8 @@ function App() {
         <Route element={<ProtectedRoute/>}>
         <Route path="/" element={<Home/>}/>   
         <Route path="select-role" element={<SelectRole/>}/>    
+        <Route path="/account" element={<Account/>}/>
+        <Route path="/cart" element={<Cart/>}/>
         </Route>
       </Routes>
       <Toaster/>

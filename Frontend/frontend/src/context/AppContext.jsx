@@ -19,7 +19,8 @@ export function AppProvider({ children }) {
                     Authorization: `Bearer ${token}`,
                 }
             })
-            setuser(data.user)
+            console.log(data)
+            setuser(data.userData)
             setisAuth(true)
         }
         catch (error) {
@@ -33,6 +34,12 @@ export function AppProvider({ children }) {
 useEffect(()=>{
     fetchUser()
 },[])
-
-return <AppContext.Provider value={{isAuth,Loading,setuser,user,setLoading}}>{children}</AppContext.Provider>
+//  useEffect(()=>{
+//     if(!navigator.geolocation) return alert("Please allow location to continue")
+//         setLoadingLocation(true)
+//     navigator.geolocation.getCurrentPosition(async(position)=>{
+            
+//     })
+//  })
+return <AppContext.Provider value={{isAuth,Loading,setuser,user,setLoading,setisAuth}}>{children}</AppContext.Provider>
 }
