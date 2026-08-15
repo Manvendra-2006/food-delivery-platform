@@ -1,0 +1,50 @@
+import mongoose from 'mongoose'
+const restaurantData = mongoose.Schema({
+    name:{
+        type:String,
+        required:true
+    },
+    description:{
+        type:String
+    },
+    image:{
+        type:String,
+        required:true
+    },
+    ownerId:{
+        type:String,
+        required:true
+    },
+    phone:{
+        type:Number,
+        required:true
+    },
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
+    addLocation:{
+       type:{
+        type:String,
+        enum:["Point"],
+        required:true
+       },
+       coordinates:{
+        type:[Number], // [longitude,latitude]
+        required:true
+       },
+       formattedAddress:{
+        type:String
+       }
+    },
+    isOpen:{
+        type:Boolean,
+        default:false
+    }
+},{
+    timestamps:true
+})
+restaurantData.index({
+    addLocation:"2dsphere"
+})
+export default mongoose.model("Restaurant",restaurantData)
