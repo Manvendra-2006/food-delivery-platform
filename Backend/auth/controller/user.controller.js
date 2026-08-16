@@ -41,7 +41,7 @@ export async function loginController(req, resp) {
         }
 
         const token = jwt.sign(
-            { id: user._id },
+            { user},
             process.env.JWT_TOKEN,
             { expiresIn: "7d" }
         )
@@ -71,7 +71,7 @@ export async function RoleController(req,resp){
         return resp.status(400).json({message:"Token required"})
     }
     const decoded = jwt.verify(token,process.env.JWT_TOKEN)
-    console.log("Id vala thumka lago",decoded.id)
+    console.log("Id vala thumka lago",decoded.user)
     const user = await User.findByIdAndUpdate(decoded.user._id,{role},{returnDocument:"after",runValidators: true})
 
     console.log("User pata laga",user)
@@ -99,8 +99,8 @@ export async function AccountDetails(req,resp){
         }
         console.log("token mila",token)
         const decoded = jwt.verify(token,process.env.JWT_TOKEN)
-        console.log("data mila",decoded.id)
-        const userData = await User.findOne({_id:decoded.id})
+        console.log("data mila",decoded)
+        const userData = await User.findOne({_id:decoded.user._id})
        return resp.status(200).json({message:"Data is fetched successfully",userData})
     }
     catch(error){
