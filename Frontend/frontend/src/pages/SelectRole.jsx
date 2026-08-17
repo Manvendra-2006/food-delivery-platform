@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
-import api from "../../axios";
+import axios from "axios";
 
 const roles = ["Customer", "Rider", "Seller"];
 
@@ -16,8 +16,8 @@ const SelectRole = () => {
     async function AddRole() {
         try {
 
-            const { data } = await api.post(
-                "/auth/role",
+            const { data } = await axios.post(
+                "http://localhost:1000/api/auth/role",
                 {
                     role: role
                 },
@@ -30,9 +30,10 @@ const SelectRole = () => {
 
             localStorage.setItem("token", data.tokenRole);
 
-            setuser(data.user);
+            const updatedUser = data.user || {};
+            setuser(updatedUser);
 
-            navigate("/", { replace: true });
+            navigate(updatedUser.role ? "/" : "/select-role", { replace: true });
 
         } catch (error) {
             alert("Something went wrong");

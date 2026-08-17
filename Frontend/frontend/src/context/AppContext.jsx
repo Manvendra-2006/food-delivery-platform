@@ -1,30 +1,39 @@
 import { useState } from "react";
 import { createContext } from "react";
-import api from "../../axios";
 import { useEffect } from "react";
 export const AppContext = createContext()
+import axios from 'axios'
 export function AppProvider({ children }) {
     const [user, setuser] = useState(null)
     const [isAuth, setisAuth] = useState(false)
-    const [Loading, setLoading] = useState(false)
+    const [Loading, setLoading] = useState(true)
     const [Location, setLocation] = useState(null)
     const [LoadingLocation, setLoadingLocation] = useState(false)
     const [city, setcity] = useState("Fetching Location.....")
 
     async function fetchUser() {
         try {
+            setLoading(true)
             const token = localStorage.getItem("token")
-            const { data } = await api.get("/auth/account", {
-                headers: {
+            if (!token) {
+                setuser(null)
+                setisAuth(false)
+                return
+            }
+
+            const {data} = await axios.get("http://localhost:1000/api/auth/account",{
+                 headers: {
                     Authorization: `Bearer ${token}`,
                 }
             })
-            console.log(data)
             setuser(data.userData)
             setisAuth(true)
         }
         catch (error) {
             console.log(error)
+            setuser(null)
+            setisAuth(false)
+            localStorage.removeItem("token")
         }
         finally {
             setLoading(false)

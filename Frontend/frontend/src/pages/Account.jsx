@@ -120,7 +120,6 @@ const Account = () => {
                         </button>
 
                     </div>
-{/* Address */}
 <div className="mt-3">
     <button
         onClick={() => navigate("/address")}

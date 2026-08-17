@@ -6,8 +6,8 @@ import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useGoogleLogin } from '@react-oauth/google'
 import {FcGoogle} from 'react-icons/fc'
-import api from '../../axios'
 import { AppContext } from '../context/AppContext'
+
 const Login = () => {
     const [loading,setloading] = useState(false)
     const navigate = useNavigate()
@@ -15,21 +15,29 @@ const Login = () => {
     const responseGoogle = async(authResult)=>{
         setloading(true)
         try{
- const result = await api.post("/auth/login", {
-            code: authResult.code
-        })
+        const result = await axios.post("http://localhost:1000/api/auth/login",{
+                code: authResult.code
+            })
+            const loggedUser = result.data.user || {}
             localStorage.setItem("token",result.data.token)
-            toast.success(result.data.message)
-            setloading(false)
-            setuser(result.data.user)
+            setuser(loggedUser)
             setisAuth(true)
-            navigate("/")
+            toast.success(result.data.message)    
+            if (!loggedUser.role) {
+                navigate("/select-role", { replace: true })
+            } else if (loggedUser.role.toLowerCase() === "seller") {
+                navigate("/restaurant", { replace: true })
+            } else {
+                navigate("/", { replace: true })
+            }
         }
         catch(error){
             console.log(error)
             toast.error("Problem while login")
+        }
+        finally {
             setloading(false)
-        } 
+        }
     }
     const googleLogin = useGoogleLogin({
         onSuccess:responseGoogle,
