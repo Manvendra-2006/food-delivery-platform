@@ -87,7 +87,7 @@ const AddDish = () => {
   return (
     <div className="min-h-screen bg-[#f7f4ef] pb-10 px-4 pt-4">
 
-      {/* Header */}
+  
       <div className="flex items-center gap-3 mb-4">
         <button
           onClick={() => navigate('/menu')}
@@ -101,11 +101,11 @@ const AddDish = () => {
         </div>
       </div>
 
-      {/* Form Card */}
+  
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-          {/* Image Upload */}
+        
           <div>
             <label className="text-sm text-gray-500 mb-2 block">Dish Image</label>
             {imagePreview ? (

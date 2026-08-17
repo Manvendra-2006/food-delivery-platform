@@ -97,7 +97,7 @@ const EditDish = () => {
   return (
     <div className="min-h-screen bg-[#f7f4ef] pb-10 px-4 pt-4">
 
-      {/* Header */}
+    
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <button
@@ -119,11 +119,11 @@ const EditDish = () => {
         </button>
       </div>
 
-      {/* Form Card */}
+      
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-          {/* Availability Toggle */}
+          
           <div className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
             <div>
               <p className="font-semibold text-gray-800">Dish Availability</p>

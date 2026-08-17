@@ -80,7 +80,7 @@ const Menu = () => {
           </button>
         </div>
 
-        {/* Search */}
+
         <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-4 py-3 mt-4">
           <Search size={18} className="text-gray-400" />
           <input
@@ -92,7 +92,7 @@ const Menu = () => {
           />
         </div>
 
-        {/* Category Tabs */}
+  
         <div className="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-1">
           {categories.map(cat => (
             <button
@@ -108,7 +108,7 @@ const Menu = () => {
           ))}
         </div>
 
-        {/* Dietary Filters */}
+       
         <div className="mt-4">
           <p className="text-xs text-gray-400 mb-2">Dietary:</p>
           <div className="flex flex-wrap gap-2">
@@ -128,7 +128,7 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* Dish List */}
+  
       <div className="flex flex-col gap-4 mt-4">
         {filteredDishes.length === 0 && (
           <p className="text-center text-gray-400 mt-6">No dishes found.</p>
@@ -150,7 +150,7 @@ const Menu = () => {
               <p className="text-gray-500 text-sm mt-1 line-clamp-2">{dish.description}</p>
 
               <div className="flex gap-2 mt-2 flex-wrap items-center">
-                {/* 👇 Availability badge */}
+              
                 <span className={`text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1
                   ${dish.isAvailable
                     ? "bg-green-100 text-green-700"

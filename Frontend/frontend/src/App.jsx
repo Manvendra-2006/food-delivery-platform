@@ -24,7 +24,7 @@ function SellerRouteGuard() {
 
   if (userRole === "seller") {
     const isAllowed = allowedPaths.includes(location.pathname) || 
-                      pathStartsWith.some(path => location.pathname.startsWith(path))
+    pathStartsWith.some(path => location.pathname.startsWith(path))
     
     if (!isAllowed) {
       return <Navigate to="/restaurant" replace />

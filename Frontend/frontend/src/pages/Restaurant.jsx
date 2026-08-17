@@ -44,13 +44,13 @@ const Restaurant = () => {
   return (
     <div className="min-h-screen bg-[#f7f4ef] pb-24">
 
-      {/* Header */}
+
       <div className="flex items-center gap-2 px-5 py-4 bg-white border-b">
         <BadgeCheck className="text-orange-600" size={24} />
         <h1 className="text-xl font-bold text-orange-600">{restaurant.name}</h1>
       </div>
 
-      {/* Hero Image */}
+     
       <div className="px-4 pt-4">
         <img
           src={restaurant.image}
@@ -60,7 +60,6 @@ const Restaurant = () => {
         />
       </div>
 
-      {/* Info Card */}
       <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm p-5">
         <div className="flex justify-between items-start">
           <div>
@@ -84,7 +83,7 @@ const Restaurant = () => {
         </div>
       </div>
 
-      {/* Stats */}
+   
       <div className="grid grid-cols-2 gap-4 mx-4 mt-4">
         <div className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex items-center justify-between text-gray-800 font-semibold">
@@ -106,7 +105,7 @@ const Restaurant = () => {
         </div>
       </div>
 
-      {/* Contact Info */}
+    
       <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm p-5">
         <h3 className="font-bold text-lg mb-4">Contact Info</h3>
         <div className="flex items-center gap-3 mb-3">
@@ -125,20 +124,19 @@ const Restaurant = () => {
         </div>
       </div>
 
-      {/* Location */}
+    
       <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm p-5">
         <h3 className="font-bold text-lg mb-4">Location</h3>
         <div className="flex items-start gap-3">
           <MapPin className="text-orange-600 mt-1" size={20} />
           <p className="text-gray-700">{restaurant.addLocation?.formattedAddress}</p>
         </div>
-        {/* Optional: embed real map using coordinates */}
+   
         <div className="mt-4 h-40 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 text-sm">
           Map preview (lat: {restaurant.addLocation?.coordinates?.[1]}, lng: {restaurant.addLocation?.coordinates?.[0]})
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex gap-3 mx-4 mt-5">
         <button
           onClick={() => setShowEdit(true)}
@@ -154,7 +152,6 @@ const Restaurant = () => {
         </button>
       </div>
 
-      {/* Bottom Nav */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-3">
         <div className="flex flex-col items-center text-orange-600">
           <div className="bg-orange-600 text-white p-2 rounded-full"><LayoutGrid size={18} /></div>
@@ -170,7 +167,7 @@ const Restaurant = () => {
         </button>
       </div>
 
-      {/* Edit Modal */}
+      
       {showEdit && (
         <EditRestaurant
         fetchMyRestaurant={fetchMyRestaurant}
