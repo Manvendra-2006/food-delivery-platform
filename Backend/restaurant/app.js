@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import restaurantRouter from './routes/restaurantRoutes'
+import restaurantRouter from './routes/restaurantRoutes.js'
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
