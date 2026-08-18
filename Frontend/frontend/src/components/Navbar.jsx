@@ -6,7 +6,6 @@ import { BiMapPin, BiSearch } from "react-icons/bi";
 const Navbar = () => {
     const {isAuth,city,LoadingLocation} = useContext(AppContext)
     const currentLocation = useLocation()
-
     const isHomePage = currentLocation.pathname === "/"
     const [searchParams,setsearchParams] = useSearchParams()
     const [search,setsearch] = useState(searchParams.get("search")|| "")
