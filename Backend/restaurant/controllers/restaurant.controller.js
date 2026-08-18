@@ -158,6 +158,31 @@ export async function GetMenu(req,resp){
     }
 }
 
+export async function GetRestaurantMenu(req,resp){
+    try{
+        const restaurantId = req.params.id
+        if(!restaurantId){
+            return resp.status(400).json({message:"Restaurant id is required"})
+        }
+
+        const restaurant = await Restaurant.findById(restaurantId)
+        if(!restaurant){
+            return resp.status(404).json({message:"Restaurant not found"})
+        }
+
+        const MenuData = await Dish.find({ restaurantId }).sort({ createdAt: -1 })
+
+        return resp.status(200).json({
+            message: "Restaurant menu fetched successfully",
+            restaurantName: restaurant.name,
+            MenuData
+        })
+    }
+    catch(error){
+        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    }
+}
+
 export async function SingleDishFetch(req,resp){
     try{
         const userId = req.user.userData._id
@@ -206,5 +231,71 @@ const id = req.params.id
     catch(error){
              return resp.status(500).json({message:"Internal Server Error",error:error.message})
 
+    }
+}
+
+export async function getNearbyRestaurant(req,resp){
+    try{
+        const {latitude,longitude,radius=5000,search=""} = req.query
+        if(!latitude || !longitude){
+            return resp.status(400).json({message:"Latitude and Longitude are required"})
+        }
+        const query = {
+            isVerified:true
+        }
+        if(search && typeof search === "string"){
+            query.name = {$regex:search , $options:"i"}
+        }
+        const restaurants = await Restaurant.aggregate([
+            {
+                $geoNear:{
+                    near:{
+                        type:"Point",
+                        coordinates:[Number(longitude),Number(latitude)]
+                    },
+                    distanceField:"distance", // iska mtlb ye h ki jab distance calculate hogi toh value distance main aaeygi 
+                    //distanceField: "distance"// geoNear aggregation stage ko bolta hai ki calculated distance ko result document mein ek temporary field ke roop mein add karo.
+                    maxDistance:Number(radius), // maximum distance ye hogi 
+                    spherical:true, // spherical earth se distance calculate
+                    query,
+                }
+            },
+            // ye geonear aggregation h jisme data deke kuch restaurant fetch ho rhe hain 
+            // mongodb main jake dekho 
+            {
+                $sort:{
+                    isOpen:-1,
+                    distance:1,
+                } 
+             //   Pehle isOpen: true wale restaurants aayenge.
+//Un open restaurants mein sabse kam distance wala restaurant pehle aayega.
+//Uske baad baaki open restaurants distance ke according aayenge.
+//Phir closed (isOpen: false) restaurants aayenge, aur unmein bhi nearest pehle.
+            },{
+                $addFields:{
+                    distanceKm:{
+                        $round:[{$divide:["$distance",1000]},2]
+                    }
+                }
+            }
+        ])
+        return resp.status(200).json({message:"Restaurant fetched successfully",count:restaurants.length,restaurants})
+    }
+    catch(error){
+        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    }
+}
+
+export async function SingleFetchRestaurant(req,resp){
+    try{
+        const id = req.params.id
+        const restaurant = await Restaurant.findById(req.params.id)
+        if(!restaurant){
+            return resp.status(400).json({message:"Restaurant not found"})
+        }
+        return resp.status(200).json({message:"Restaunat data fetched successfully",restaurant})
+    }
+    catch(error){
+        return resp.status(500).json({message:"Internal Server Error",error:error.message})
     }
 }
