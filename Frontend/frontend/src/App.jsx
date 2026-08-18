@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
 import Home from "./pages/Home"
 import Login from "./pages/login"
-import {Toaster} from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { ProtectedRoute } from "./components/protectedRoute"
 import PublicRoute from "./components/publicRoute"
 import SelectRole from "./pages/SelectRole"
@@ -21,12 +21,13 @@ function SellerRouteGuard() {
   const userRole = user?.role?.toString().trim().toLowerCase()
 
   const allowedPaths = ["/restaurant", "/account", "/cart", "/menu", "/menu/add"]
-  const pathStartsWith = ["/menu/edit", "/menu/add"]
+  const pathStartsWith = ["/menu", "/menu/edit", "/menu/add"]
 
   if (userRole === "seller") {
-    const isAllowed = allowedPaths.includes(location.pathname) || 
-    pathStartsWith.some(path => location.pathname.startsWith(path))
-    
+    const isAllowed =
+      allowedPaths.includes(location.pathname) ||
+      pathStartsWith.some((path) => location.pathname.startsWith(path))
+
     if (!isAllowed) {
       return <Navigate to="/restaurant" replace />
     }
@@ -39,28 +40,27 @@ function App() {
   return (
     <>
       <BrowserRouter>
-      <SellerRouteGuard />
-      <Navbar/>
-      <Routes>
-        <Route element={<PublicRoute/>}>
-       <Route path="/login" element={<Login/>}/>
-        </Route>
-        <Route element={<ProtectedRoute/>}>
-        <Route path="/" element={<Home/>}/>   
-        <Route path="select-role" element={<SelectRole/>}/>    
-        <Route path="/account" element={<Account/>}/>
-        <Route path="/cart" element={<Cart/>}/>
-        <Route path="/restaurant" element={<Restaurant/>}/>
-        <Route path="/menu/:id" element={<Menu/>}/>
-        <Route path="/menu/add" element={<AddDish />} />
-<Route path="/menu/edit/:id" element={<EditDish />} />
-<Route
-  path="/restaurant/:id"
-  element={<RestaurantPage />}
-/>
-        </Route>
-      </Routes>
-      <Toaster/>
+        <SellerRouteGuard />
+        <Navbar />
+        <Routes>
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<Login />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Home />} />
+            <Route path="select-role" element={<SelectRole />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/restaurant" element={<Restaurant />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/menu/:id" element={<Menu />} />
+            <Route path="/menu/add" element={<AddDish />} />
+            <Route path="/menu/edit/:id" element={<EditDish />} />
+            <Route path="/restaurant/:id" element={<RestaurantPage />}
+            />
+          </Route>
+        </Routes>
+        <Toaster />
       </BrowserRouter>
     </>
   )

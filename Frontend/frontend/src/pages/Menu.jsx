@@ -1,38 +1,80 @@
 // pages/Menu.jsx
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import axios from 'axios'
-import { Plus, Search, Flame, Pencil, Trash2, Leaf, CheckCircle2, XCircle } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import {Plus,Search,Flame,Pencil,Trash2,Leaf,CheckCircle2,XCircle,ShoppingCart} from 'lucide-react'
+import { useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { AppContext } from '../context/AppContext'
 
 const categories = ["All Items", "Starters", "Mains", "Classics", "Desserts"]
 const dietaryFilters = ["All", "Chef Specials", "Gluten-Free", "Vegan", "Organic"]
 
 const Menu = () => {
+  const { user } = useContext(AppContext)
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const userRole = user?.role?.toString().trim().toLowerCase()
+  const isSeller = userRole === 'seller'
+
   const [dishes, setDishes] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState("All Items")
   const [activeDiet, setActiveDiet] = useState("All")
   const [search, setSearch] = useState("")
-  const navigate = useNavigate()
+  const [restaurantName, setRestaurantName] = useState("")
+  const [cartCount, setCartCount] = useState(0)
+
+  const getCartItems = () => {
+    try {
+      return JSON.parse(localStorage.getItem('cart') || '[]')
+    } catch (error) {
+      return []
+    }
+  }
+
+  const syncCartCount = () => {
+    const cart = getCartItems()
+    const total = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0)
+    setCartCount(total)
+  }
 
   async function fetchMenu() {
     try {
-      const { data } = await axios.get('http://localhost:2000/api/restaurant/my-menu', {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      })
-      setDishes(data.MenuData || [])
+      setLoading(true)
+
+      let response
+      if (isSeller) {
+        response = await axios.get('http://localhost:2000/api/restaurant/my-menu', {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        })
+      } else if (id) {
+        response = await axios.get(`http://localhost:2000/api/restaurant/restaurant-menu/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        })
+      } else {
+        setDishes([])
+        return
+      }
+
+      const menuData = response?.data?.MenuData || response?.data?.menuData || []
+      setDishes(menuData)
+      setRestaurantName(response?.data?.restaurantName || 'Restaurant Menu')
     } catch (error) {
       console.log(error)
-      setDishes([]) // 👈 fix: 'data' yahan defined nahi tha, crash hoga
+      setDishes([])
+      setRestaurantName('Restaurant Menu')
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchMenu()
+    syncCartCount()
   }, [])
+
+  useEffect(() => {
+    fetchMenu()
+  }, [isSeller, id])
 
   async function handleDelete(id) {
     if (!confirm("Delete this dish permanently?")) return
@@ -48,7 +90,22 @@ const Menu = () => {
     }
   }
 
-  const filteredDishes = dishes.filter(d => {
+  const addToCart = (dish) => {
+    const cart = getCartItems()
+    const existingDish = cart.find((item) => item._id === dish._id)
+
+    if (existingDish) {
+      existingDish.quantity += 1
+    } else {
+      cart.push({ ...dish, quantity: 1 })
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart))
+    syncCartCount()
+    toast.success(`${dish.name} added to cart`)
+  }
+
+  const filteredDishes = dishes.filter((d) => {
     const matchesCategory = activeCategory === "All Items" || d.category === activeCategory
     const matchesDiet = activeDiet === "All" || d.tags?.includes(activeDiet)
     const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase())
@@ -56,15 +113,134 @@ const Menu = () => {
   })
 
   const categoryCount = (cat) =>
-    cat === "All Items" ? dishes.length : dishes.filter(d => d.category === cat).length
+    cat === "All Items" ? dishes.length : dishes.filter((d) => d.category === cat).length
 
   if (loading) {
     return <div className='flex min-h-screen items-center justify-center'>Loading menu...</div>
   }
 
+  if (!isSeller) {
+    return (
+      <div className="min-h-screen bg-[#f7f4ef] pb-20 px-4 pt-4">
+        <div className="bg-white rounded-2xl shadow-sm p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-gray-400">Menu</p>
+              <h1 className="text-2xl font-bold text-gray-900">{restaurantName || 'Restaurant Menu'}</h1>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate('/cart')}
+              className="relative p-3 rounded-full bg-orange-100 text-orange-600"
+            >
+              <ShoppingCart size={22} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm p-5 mt-4">
+          <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-4 py-3">
+            <Search size={18} className="text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search dishes, ingredients, or pairings..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-transparent outline-none w-full text-sm"
+            />
+          </div>
+
+          <div className="flex gap-2 mt-4 overflow-x-auto pb-1">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                  activeCategory === cat ? "bg-orange-600 text-white" : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {cat} ({categoryCount(cat)})
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            <p className="text-xs text-gray-400 mb-2">Dietary:</p>
+            <div className="flex flex-wrap gap-2">
+              {dietaryFilters.map((diet) => (
+                <button
+                  key={diet}
+                  onClick={() => setActiveDiet(diet)}
+                  className={`px-3 py-1.5 rounded-full text-sm border flex items-center gap-1 ${
+                    activeDiet === diet ? "border-orange-600 text-orange-600" : "border-gray-200 text-gray-600"
+                  }`}
+                >
+                  {diet === "Vegan" && <Leaf size={14} />} {diet}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-4">
+          {filteredDishes.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-500">
+              No dishes available right now.
+            </div>
+          ) : (
+            filteredDishes.map((dish) => (
+              <div key={dish._id} className="bg-white rounded-2xl shadow-sm p-4 flex gap-4">
+                <img
+                  src={dish.image}
+                  alt={dish.name}
+                  className="w-24 h-24 object-cover rounded-xl bg-gray-100"
+                />
+
+                <div className="flex-1 flex flex-col justify-between">
+                  <div className="flex justify-between gap-3">
+                    <div>
+                      <h3 className="font-bold text-gray-900">{dish.name}</h3>
+                      <p className="text-sm text-gray-500 mt-1">{dish.category}</p>
+                    </div>
+                    <span className="font-bold text-gray-900">₹{Number(dish.price).toFixed(2)}</span>
+                  </div>
+
+                  <p className="text-sm text-gray-500 mt-2 line-clamp-2">{dish.description}</p>
+
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="flex flex-wrap gap-2">
+                      {dish.tags?.map((tag) => (
+                        <span key={tag} className="text-[10px] px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => addToCart(dish)}
+                      className="flex items-center gap-2 bg-orange-600 text-white px-3 py-2 rounded-xl font-medium"
+                    >
+                      <Plus size={16} /> Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[#f7f4ef] pb-24 px-4 pt-4">
-
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <div className="flex justify-between items-start">
           <div>
@@ -80,7 +256,6 @@ const Menu = () => {
           </button>
         </div>
 
-
         <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-4 py-3 mt-4">
           <Search size={18} className="text-gray-400" />
           <input
@@ -92,9 +267,8 @@ const Menu = () => {
           />
         </div>
 
-  
         <div className="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-1">
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
@@ -108,11 +282,10 @@ const Menu = () => {
           ))}
         </div>
 
-       
         <div className="mt-4">
           <p className="text-xs text-gray-400 mb-2">Dietary:</p>
           <div className="flex flex-wrap gap-2">
-            {dietaryFilters.map(diet => (
+            {dietaryFilters.map((diet) => (
               <button
                 key={diet}
                 onClick={() => setActiveDiet(diet)}
@@ -128,12 +301,11 @@ const Menu = () => {
         </div>
       </div>
 
-  
       <div className="flex flex-col gap-4 mt-4">
         {filteredDishes.length === 0 && (
           <p className="text-center text-gray-400 mt-6">No dishes found.</p>
         )}
-        {filteredDishes.map(dish => (
+        {filteredDishes.map((dish) => (
           <div key={dish._id} className="bg-white rounded-2xl shadow-sm p-4 flex gap-4 relative">
             <div className="relative">
               <img
@@ -145,12 +317,11 @@ const Menu = () => {
             <div className="flex-1">
               <div className="flex justify-between items-start">
                 <h3 className="font-bold text-gray-900">{dish.name}</h3>
-                <span className="font-bold text-gray-900">${Number(dish.price).toFixed(2)}</span>
+                <span className="font-bold text-gray-900">₹{Number(dish.price).toFixed(2)}</span>
               </div>
               <p className="text-gray-500 text-sm mt-1 line-clamp-2">{dish.description}</p>
 
               <div className="flex gap-2 mt-2 flex-wrap items-center">
-              
                 <span className={`text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1
                   ${dish.isAvailable
                     ? "bg-green-100 text-green-700"
@@ -160,7 +331,7 @@ const Menu = () => {
                   {dish.isAvailable ? "Available" : "Unavailable"}
                 </span>
 
-                {dish.tags?.map(tag => (
+                {dish.tags?.map((tag) => (
                   <span
                     key={tag}
                     className={`text-xs px-2 py-1 rounded-full font-medium
