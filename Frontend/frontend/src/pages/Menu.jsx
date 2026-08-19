@@ -10,7 +10,7 @@ const categories = ["All Items", "Starters", "Mains", "Classics", "Desserts"]
 const dietaryFilters = ["All", "Chef Specials", "Gluten-Free", "Vegan", "Organic"]
 
 const Menu = () => {
-  const { user } = useContext(AppContext)
+  const { user, fetchCart, addToCart, quantity, clearCart } = useContext(AppContext)
   const { id } = useParams()
   const navigate = useNavigate()
   const userRole = user?.role?.toString().trim().toLowerCase()
@@ -22,22 +22,9 @@ const Menu = () => {
   const [activeDiet, setActiveDiet] = useState("All")
   const [search, setSearch] = useState("")
   const [restaurantName, setRestaurantName] = useState("")
-  const [cartCount, setCartCount] = useState(0)
-
-  const getCartItems = () => {
-    try {
-      return JSON.parse(localStorage.getItem('cart') || '[]')
-    } catch (error) {
-      return []
-    }
-  }
-
-  const syncCartCount = () => {
-    const cart = getCartItems()
-    const total = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0)
-    setCartCount(total)
-  }
-
+  const [addingToCart, setAddingToCart] = useState({})
+  const [showClearCartDialog, setShowClearCartDialog] = useState(false)
+  const [pendingDishToAdd, setPendingDishToAdd] = useState(null)
   async function fetchMenu() {
     try {
       setLoading(true)
@@ -69,40 +56,65 @@ const Menu = () => {
   }
 
   useEffect(() => {
-    syncCartCount()
-  }, [])
-
-  useEffect(() => {
     fetchMenu()
   }, [isSeller, id])
 
-  async function handleDelete(id) {
-    if (!confirm("Delete this dish permanently?")) return
+  async function handleAddToCart(dish) {
     try {
-      await axios.delete(`http://localhost:2000/api/restaurant/delete-dish/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      })
-      toast.success("Dish deleted")
-      await fetchMenu()
+      setAddingToCart({ ...addingToCart, [dish._id]: true })
+      const result = await addToCart(id, dish._id, 1, dish.name)
+      
+      if (result.success) {
+        toast.success(`${dish.name} added to cart`)
+      } else {
+        // Check if error is due to different restaurant
+        const errorMessage = result.error?.response?.data?.message || ""
+        if (errorMessage.includes("only one restaurant")) {
+          setPendingDishToAdd(dish)
+          setShowClearCartDialog(true)
+        } else {
+          toast.error(errorMessage || "Failed to add item to cart")
+        }
+      }
     } catch (error) {
       console.log(error)
-      toast.error("Failed to delete dish")
+      toast.error("Error adding to cart")
+    } finally {
+      setAddingToCart({ ...addingToCart, [dish._id]: false })
     }
   }
 
-  const addToCart = (dish) => {
-    const cart = getCartItems()
-    const existingDish = cart.find((item) => item._id === dish._id)
-
-    if (existingDish) {
-      existingDish.quantity += 1
-    } else {
-      cart.push({ ...dish, quantity: 1 })
+  async function handleClearCartAndAdd() {
+    try {
+      setShowClearCartDialog(false)
+      toast.loading("Clearing cart...")
+      const clearResult = await clearCart()
+      
+      if (clearResult.success) {
+        toast.dismiss()
+        toast.success("Cart cleared")
+        
+    
+        if (pendingDishToAdd) {
+          setAddingToCart({ ...addingToCart, [pendingDishToAdd._id]: true })
+          const addResult = await addToCart(id, pendingDishToAdd._id, 1, pendingDishToAdd.name)
+          
+          if (addResult.success) {
+            toast.success(`${pendingDishToAdd.name} added to cart`)
+          } else {
+            toast.error("Failed to add item after clearing cart")
+          }
+          
+          setAddingToCart({ ...addingToCart, [pendingDishToAdd._id]: false })
+          setPendingDishToAdd(null)
+        }
+      } else {
+        toast.error("Failed to clear cart")
+      }
+    } catch (error) {
+      console.log(error)
+      toast.error("Error clearing cart")
     }
-
-    localStorage.setItem('cart', JSON.stringify(cart))
-    syncCartCount()
-    toast.success(`${dish.name} added to cart`)
   }
 
   const filteredDishes = dishes.filter((d) => {
@@ -119,9 +131,46 @@ const Menu = () => {
     return <div className='flex min-h-screen items-center justify-center'>Loading menu...</div>
   }
 
+  // Clear Cart Dialog
+  const ClearCartDialog = () => {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+        <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-lg">
+          <h2 className="text-lg font-bold text-gray-900 mb-2">Switch Restaurant?</h2>
+          <p className="text-gray-600 mb-6">
+            You can order from only one restaurant at a time. Please clear your cart first to add items from this restaurant.
+          </p>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setShowClearCartDialog(false)
+                setPendingDishToAdd(null)
+              }}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-900 rounded-lg font-medium hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleClearCartAndAdd}
+              className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700"
+            >
+              Clear & Add
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return <div className='flex min-h-screen items-center justify-center'>Loading menu...</div>
+  }
+
   if (!isSeller) {
     return (
-      <div className="min-h-screen bg-[#f7f4ef] pb-20 px-4 pt-4">
+      <>
+        <div className="min-h-screen bg-[#f7f4ef] pb-20 px-4 pt-4">
         <div className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -135,9 +184,9 @@ const Menu = () => {
               className="relative p-3 rounded-full bg-orange-100 text-orange-600"
             >
               <ShoppingCart size={22} />
-              {cartCount > 0 && (
+              {quantity > 0 && (
                 <span className="absolute -top-1 -right-1 bg-orange-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                  {cartCount}
+                  {quantity}
                 </span>
               )}
             </button>
@@ -224,10 +273,11 @@ const Menu = () => {
 
                     <button
                       type="button"
-                      onClick={() => addToCart(dish)}
-                      className="flex items-center gap-2 bg-orange-600 text-white px-3 py-2 rounded-xl font-medium"
+                      onClick={() => handleAddToCart(dish)}
+                      disabled={addingToCart[dish._id]}
+                      className="flex items-center gap-2 bg-orange-600 text-white px-3 py-2 rounded-xl font-medium disabled:opacity-50"
                     >
-                      <Plus size={16} /> Add
+                      <Plus size={16} /> {addingToCart[dish._id] ? "Adding..." : "Add"}
                     </button>
                   </div>
                 </div>
@@ -236,10 +286,14 @@ const Menu = () => {
           )}
         </div>
       </div>
+        {showClearCartDialog && <ClearCartDialog />}
+      </>
     )
   }
 
+
   return (
+    <>
     <div className="min-h-screen bg-[#f7f4ef] pb-24 px-4 pt-4">
       <div className="bg-white rounded-2xl shadow-sm p-5">
         <div className="flex justify-between items-start">
@@ -370,6 +424,8 @@ const Menu = () => {
         ))}
       </div>
     </div>
+    {showClearCartDialog && <ClearCartDialog />}
+    </>
   )
 }
 

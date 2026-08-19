@@ -40,9 +40,124 @@ export function AppProvider({ children }) {
         }
 
     }
+     
+    const [cart,setcart]= useState([])
+    const [subtotal,setsubtotal] = useState(0)
+    const [quantity,setquantity] = useState(0)
+    
+    async function fetchCart(){
+        if(!user||user.role !== "Customer") return ;
+        try{
+            const {data} = await axios.get("http://localhost:2000/api/restaurant/ALLcart",{
+                headers:{
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            })
+            setcart(data.AllCart || [])
+            setsubtotal(data.subtotal || 0)
+            setquantity(data.cartLength || 0)
+        }
+        catch(error){
+            console.log(error)
+        }
+    }
+
+    async function addToCart(restaurantId, menuId, quantity_value, name) {
+        try {
+            const {data} = await axios.post(
+                `http://localhost:2000/api/restaurant/create-cart/${restaurantId}/${menuId}`,
+                {
+                    quantity: quantity_value,
+                    name: name
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            )
+            // Refresh cart after adding
+            await fetchCart()
+            return { success: true, data }
+        } catch(error) {
+            console.log(error)
+            return { success: false, error }
+        }
+    }
+
+    async function updateCartQuantity(menuId, cartId, newQuantity) {
+        try {
+            const {data} = await axios.patch(
+                `http://localhost:2000/api/restaurant/${menuId}/${cartId}`,
+                {
+                    quantity: newQuantity
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            )
+            // Refresh cart after updating
+            await fetchCart()
+            return { success: true, data }
+        } catch(error) {
+            console.log(error)
+            return { success: false, error }
+        }
+    }
+
+    async function deleteCartItem(cartId) {
+        try {
+            const {data} = await axios.delete(
+                `http://localhost:2000/api/restaurant/${cartId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
+                }
+            )
+            // Refresh cart after deleting
+            await fetchCart()
+            return { success: true, data }
+        } catch(error) {
+            console.log(error)
+            return { success: false, error }
+        }
+    }
+
+    async function clearCart() {
+        try {
+            // Delete all cart items
+            if (cart && cart.length > 0) {
+                for (let item of cart) {
+                    await axios.delete(
+                        `http://localhost:2000/api/restaurant/${item._id}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token")}`
+                            }
+                        }
+                    )
+                }
+            }
+            // Refresh cart after clearing
+            await fetchCart()
+            return { success: true }
+        } catch(error) {
+            console.log(error)
+            return { success: false, error }
+        }
+    }
     useEffect(() => {
         fetchUser()
     }, [])
+    useEffect(()=>{
+        if(user && user.role=="Customer"){
+            fetchCart()
+        }
+       
+    },[user])
     useEffect(() => {
 
         if (!navigator.geolocation) return alert("Please allow location to continue")
@@ -77,5 +192,5 @@ export function AppProvider({ children }) {
             }
         })
     },[])
-    return <AppContext.Provider value={{ Location,isAuth, Loading, setuser, user, setLoading, setisAuth,setLocation,setLoadingLocation,LoadingLocation,city,setcity }}>{children}</AppContext.Provider>
+    return <AppContext.Provider value={{ Location,isAuth, Loading, setuser, user, setLoading, setisAuth,setLocation,setLoadingLocation,LoadingLocation,city,setcity,cart,subtotal,quantity,fetchCart,addToCart,updateCartQuantity,deleteCartItem,setcart,setsubtotal,setquantity,clearCart }}>{children}</AppContext.Provider>
 }
