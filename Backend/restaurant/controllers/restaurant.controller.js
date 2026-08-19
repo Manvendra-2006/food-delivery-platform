@@ -2,172 +2,172 @@ import getBuffer from "../config/datauri.js"
 import Restaurant from "../models/restaurant.model.js"
 import axios from 'axios'
 import Dish from "../models/menu.model.js"
-export async function AddRestaurant(req,resp){
-    try{
-        const user  = req.user
-        if(!user.userData || user.userData.role !== 'Seller'){
-            return resp.status(403).json({message:"User is unauthorized or not role have seller"})
+export async function AddRestaurant(req, resp) {
+    try {
+        const user = req.user
+        if (!user.userData || user.userData.role !== 'Seller') {
+            return resp.status(403).json({ message: "User is unauthorized or not role have seller" })
         }
         const existingRestaurant = await Restaurant.findOne({
-            ownerId:user.userData._id
+            ownerId: user.userData._id
         })
 
-        if(existingRestaurant){
-            return resp.status(400).json({message:"You already have one restaurant with this account"})
+        if (existingRestaurant) {
+            return resp.status(400).json({ message: "You already have one restaurant with this account" })
         }
 
-        const {name,description,phone,latitude,longitude,formattedAddress} = req.body
-        if(!name||!description||!latitude||!longitude||!formattedAddress||!phone){
-            return resp.status(400).json({message:"All Filelds are required"})
+        const { name, description, phone, latitude, longitude, formattedAddress } = req.body
+        if (!name || !description || !latitude || !longitude || !formattedAddress || !phone) {
+            return resp.status(400).json({ message: "All Filelds are required" })
         }
         const file = req.file
-        if(!file){
-            return resp.status(400).json({message:"Please give file"})
+        if (!file) {
+            return resp.status(400).json({ message: "Please give file" })
         }
         const fileBuffer = getBuffer(file)
-        if(!fileBuffer){
-            return resp.status(500).json({message:"Failed to create file buffer"})
+        if (!fileBuffer) {
+            return resp.status(500).json({ message: "Failed to create file buffer" })
         }
-        const {data} = await axios.post(`${process.env.UTILI_SERVICE}/api/upload`,{
+        const { data } = await axios.post(`${process.env.UTILI_SERVICE}/api/upload`, {
             buffer: fileBuffer.content
         })
         const restaurant = await Restaurant.create({
             name,
             description,
-            image:data.url,
-            ownerId:req.user.userData._id,
+            image: data.url,
+            ownerId: req.user.userData._id,
             phone,
-            addLocation:{
-                type:"Point",
-                coordinates:[Number(longitude),Number(latitude)],
+            addLocation: {
+                type: "Point",
+                coordinates: [Number(longitude), Number(latitude)],
                 formattedAddress,
             }
         })
-        return resp.status(201).json({message:"Restaurant created successfully",restaurant})
+        return resp.status(201).json({ message: "Restaurant created successfully", restaurant })
     }
-    catch(error){
-        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
 
-export async function FetchAccount(req,resp){
-    try{
+export async function FetchAccount(req, resp) {
+    try {
         const user = req.user
-   if(!user.userData || user.userData.role !== 'Seller'){
-            return resp.status(403).json({message:"User is unauthorized or not role have seller"})
+        if (!user.userData || user.userData.role !== 'Seller') {
+            return resp.status(403).json({ message: "User is unauthorized or not role have seller" })
         }
-        const restaurantData = await Restaurant.findOne({ownerId:user.userData._id})
-        if(!restaurantData){
-              return resp.status(400).json({message:"No restaurant Data"})
+        const restaurantData = await Restaurant.findOne({ ownerId: user.userData._id })
+        if (!restaurantData) {
+            return resp.status(400).json({ message: "No restaurant Data" })
         }
-        return resp.status(200).json({message:"Restaurant Data is fetched successfully",restaurantData})
+        return resp.status(200).json({ message: "Restaurant Data is fetched successfully", restaurantData })
         // yaha par restaurant id banana hain token main yadi zarraot pade toh 
     }
-    catch(error){
-        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
 
-export async function UpdateRestaurant(req,resp){
-    try{
-        const userId = req.user.userData._id      
-        console.log(userId)
-        if(!userId){
-            return resp.status(404).json({message:"User is unauthorized"})
-        }
-        const {name,description,phone,isOpen} = req.body
-        const restaurantData = await Restaurant.findOne({ownerId:userId})
-        if(!restaurantData){
-            return resp.status(404).json({message:"Restaurant not found"})
-        }
-        const restaurantUpdate = await Restaurant.findByIdAndUpdate(restaurantData._id,{ name, description, phone, isOpen },{new:true,runValidators:true})
-        if(restaurantUpdate){
-            return resp.status(200).json({message:"Restaurna Id is updated succcessfully",restaurantUpdate})
-        }
-    }
-    catch(error){
-        return resp.status(500).json({message:"Intenral Server Error",error:error.message})
-    }
-}
-
-export async function AddMenu (req,resp){
-    try{
+export async function UpdateRestaurant(req, resp) {
+    try {
         const userId = req.user.userData._id
-        if(!userId){
-            return resp.status(400).json({message:"User is unauthorized"})
+        console.log(userId)
+        if (!userId) {
+            return resp.status(404).json({ message: "User is unauthorized" })
+        }
+        const { name, description, phone, isOpen } = req.body
+        const restaurantData = await Restaurant.findOne({ ownerId: userId })
+        if (!restaurantData) {
+            return resp.status(404).json({ message: "Restaurant not found" })
+        }
+        const restaurantUpdate = await Restaurant.findByIdAndUpdate(restaurantData._id, { name, description, phone, isOpen }, { new: true, runValidators: true })
+        if (restaurantUpdate) {
+            return resp.status(200).json({ message: "Restaurna Id is updated succcessfully", restaurantUpdate })
+        }
+    }
+    catch (error) {
+        return resp.status(500).json({ message: "Intenral Server Error", error: error.message })
+    }
+}
+
+export async function AddMenu(req, resp) {
+    try {
+        const userId = req.user.userData._id
+        if (!userId) {
+            return resp.status(400).json({ message: "User is unauthorized" })
         }
         const ownerId = userId
-        const restaurant = await Restaurant.findOne({ownerId})
-        if(!restaurant){
-            return resp.status(404).json({message:"No restaurant is exist for this ownerId"})
+        const restaurant = await Restaurant.findOne({ ownerId })
+        if (!restaurant) {
+            return resp.status(404).json({ message: "No restaurant is exist for this ownerId" })
         }
         const restaurantId = restaurant._id
         const file = req.file
-        if(!file){
-            return resp.status(404).json({message:"Please give image"})
+        if (!file) {
+            return resp.status(404).json({ message: "Please give image" })
         }
         const fileBuffer = getBuffer(file)
-        if(!fileBuffer){
-            return resp.status(404).json({message:"FIle is not buffered"})
+        if (!fileBuffer) {
+            return resp.status(404).json({ message: "FIle is not buffered" })
         }
-          const {data} = await axios.post(`${process.env.UTILI_SERVICE}/api/upload`,{
+        const { data } = await axios.post(`${process.env.UTILI_SERVICE}/api/upload`, {
             buffer: fileBuffer.content
         })
-        const {name,description,price,category,tags} = req.body
-        if(!name||!description||!price||!category||!tags){
-            return resp.status(404).json({message:"All fields are required"})
+        const { name, description, price, category, tags } = req.body
+        if (!name || !description || !price || !category || !tags) {
+            return resp.status(404).json({ message: "All fields are required" })
         }
         const menu = await Dish.create({
             name,
             description,
             price,
             category,
-             tags :JSON.parse(req.body.tags),
+            tags: JSON.parse(req.body.tags),
             ownerId,
-            image:data.url,
+            image: data.url,
             restaurantId
         })
-        if(!menu){
-            return resp.status(404).json({message:"Menu is not created"})
+        if (!menu) {
+            return resp.status(404).json({ message: "Menu is not created" })
         }
-        return resp.status(201).json({message:"Menu is created Successfully",menu})
+        return resp.status(201).json({ message: "Menu is created Successfully", menu })
     }
-    catch(error){
-        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
 
 
-export async function GetMenu(req,resp){
-    try{
+export async function GetMenu(req, resp) {
+    try {
         const userId = req.user.userData._id
         console.log(userId)
-        if(!userId){
-            return resp.status(404).json({message:"Unauthorized user"})
+        if (!userId) {
+            return resp.status(404).json({ message: "Unauthorized user" })
         }
         const MenuData = await Dish.find({
-            ownerId:userId
+            ownerId: userId
         })
-        if(!MenuData){
-            return resp.status(404).json({message:"No Menu is in database for this restaurant"})
+        if (!MenuData) {
+            return resp.status(404).json({ message: "No Menu is in database for this restaurant" })
         }
-        return resp.status(200).json({message:"Menu data fetched successfully",MenuData})
+        return resp.status(200).json({ message: "Menu data fetched successfully", MenuData })
     }
-    catch(error){
-        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
 
-export async function GetRestaurantMenu(req,resp){
-    try{
+export async function GetRestaurantMenu(req, resp) {
+    try {
         const restaurantId = req.params.id
-        if(!restaurantId){
-            return resp.status(400).json({message:"Restaurant id is required"})
+        if (!restaurantId) {
+            return resp.status(400).json({ message: "Restaurant id is required" })
         }
 
         const restaurant = await Restaurant.findById(restaurantId)
-        if(!restaurant){
-            return resp.status(404).json({message:"Restaurant not found"})
+        if (!restaurant) {
+            return resp.status(404).json({ message: "Restaurant not found" })
         }
 
         const MenuData = await Dish.find({ restaurantId }).sort({ createdAt: -1 })
@@ -178,124 +178,125 @@ export async function GetRestaurantMenu(req,resp){
             MenuData
         })
     }
-    catch(error){
-        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
 
-export async function SingleDishFetch(req,resp){
-    try{
+export async function SingleDishFetch(req, resp) {
+    try {
         const userId = req.user.userData._id
         console.log(userId)
         const id = req.params.id
         console.log(id)
-        if(!userId){
-            return resp.status(404).json({message:"Unauthorized user"})
+        if (!userId) {
+            return resp.status(404).json({ message: "Unauthorized user" })
         }
-           const SingleMenuData = await Dish.findById(id)
-           if(SingleMenuData){
-            return resp.status(200).json({message:"Single Menu fetched successfully",SingleMenuData})
-           }
+        const SingleMenuData = await Dish.findById(id)
+        if (SingleMenuData) {
+            return resp.status(200).json({ message: "Single Menu fetched successfully", SingleMenuData })
+        }
     }
-    catch(error){
-     return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
 
     }
 }
 
-export async function DishUpdated(req,resp){
-    try{
-    const id = req.params.id
-    const {name,description,price,category,tags,isAvailable} = req.body
-    const menu = await Dish.findByIdAndUpdate(id,{name,description,price,category,tags,isAvailable},{new:true,runValidators:true})
-    if(!menu){
-        return resp.status(404).json({message:"Dish Data is not updated"})
+export async function DishUpdated(req, resp) {
+    try {
+        const id = req.params.id
+        const { name, description, price, category, tags, isAvailable } = req.body
+        const menu = await Dish.findByIdAndUpdate(id, { name, description, price, category, tags, isAvailable }, { new: true, runValidators: true })
+        if (!menu) {
+            return resp.status(404).json({ message: "Dish Data is not updated" })
+        }
+        return resp.status(200).json({ message: "Dish data is updated", })
     }
-    return resp.status(200).json({message:"Dish data is updated",})
-    }
-    catch(error){
-     return resp.status(500).json({message:"Internal Server Error",error:error.message})
-    }
-}
-
-export async function DeleteDish(req,resp){
-    try{
-const id = req.params.id
-    const menu = await Dish.findByIdAndDelete(id)
-       if(!menu){
-        return resp.status(404).json({message:"Dish Data is not deleted"})
-    }
-    return resp.status(200).json({message:"Dish data is deleted"})
-
-    }
-    catch(error){
-             return resp.status(500).json({message:"Internal Server Error",error:error.message})
-
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
 
-export async function getNearbyRestaurant(req,resp){
-    try{
-        const {latitude,longitude,radius=5000,search=""} = req.query
-        if(!latitude || !longitude){
-            return resp.status(400).json({message:"Latitude and Longitude are required"})
+export async function DeleteDish(req, resp) {
+    try {
+        const id = req.params.id
+        const menu = await Dish.findByIdAndDelete(id)
+        if (!menu) {
+            return resp.status(404).json({ message: "Dish Data is not deleted" })
+        }
+        return resp.status(200).json({ message: "Dish data is deleted" })
+
+    }
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
+
+    }
+}
+
+export async function getNearbyRestaurant(req, resp) {
+    try {
+        const { latitude, longitude, radius = 5000, search = "" } = req.query
+        if (!latitude || !longitude) {
+            return resp.status(400).json({ message: "Latitude and Longitude are required" })
         }
         const query = {
-            isVerified:true
+            isVerified: true
         }
-        if(search && typeof search === "string"){
-            query.name = {$regex:search , $options:"i"}
+        if (search && typeof search === "string") {
+            query.name = { $regex: search, $options: "i" }
         }
         const restaurants = await Restaurant.aggregate([
             {
-                $geoNear:{
-                    near:{
-                        type:"Point",
-                        coordinates:[Number(longitude),Number(latitude)]
+                $geoNear: {
+                    near: {
+                        type: "Point", // geometry type define hota h
+                        coordinates: [Number(longitude), Number(latitude)]
                     },
-                    distanceField:"distance", // iska mtlb ye h ki jab distance calculate hogi toh value distance main aaeygi 
+                    distanceField: "distance", // iska mtlb ye h ki jab distance calculate hogi toh value distance main aaeygi 
                     //distanceField: "distance"// geoNear aggregation stage ko bolta hai ki calculated distance ko result document mein ek temporary field ke roop mein add karo.
-                    maxDistance:Number(radius), // maximum distance ye hogi 
-                    spherical:true, // spherical earth se distance calculate
+                    maxDistance: Number(radius), // maximum distance ye hogi 
+                    spherical: true, // spherical earth se distance calculate
                     query,
                 }
             },
             // ye geonear aggregation h jisme data deke kuch restaurant fetch ho rhe hain 
             // mongodb main jake dekho 
             {
-                $sort:{
-                    isOpen:-1,
-                    distance:1,
-                } 
-             //   Pehle isOpen: true wale restaurants aayenge.
-//Un open restaurants mein sabse kam distance wala restaurant pehle aayega.
-//Uske baad baaki open restaurants distance ke according aayenge.
-//Phir closed (isOpen: false) restaurants aayenge, aur unmein bhi nearest pehle.
-            },{
-                $addFields:{
-                    distanceKm:{
-                        $round:[{$divide:["$distance",1000]},2]
+                $sort: {
+                    isOpen: -1,
+                    distance: 1,
+                }
+                //   Pehle isOpen: true wale restaurants aayenge.
+                //Un open restaurants mein sabse kam distance wala restaurant pehle aayega.
+                //Uske baad baaki open restaurants distance ke according aayenge.
+                //Phir closed (isOpen: false) restaurants aayenge, aur unmein bhi nearest pehle.
+            }, {
+                $addFields: {
+                    distanceKm: {
+                        $round: [{ $divide: ["$distance", 1000] }, 2]
                     }
                 }
             }
         ])
-        return resp.status(200).json({message:"Restaurant fetched successfully",count:restaurants.length,restaurants})
+        return resp.status(200).json({ message: "Restaurant fetched successfully", count: restaurants.length, restaurants })
     }
-    catch(error){
-        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
-
-export async function SingleFetchRestaurant(req,resp){
-    try{
+//Toh search nahi hai → radius ke andar ke saare verified restaurants → distance ke ascending order mein.
+//mtlb hume vo restaurant fetch honge jisme pizza ho aur vo sab restaurant hume km wise aseceding main show honge
+export async function SingleFetchRestaurant(req, resp) {
+    try {
         const id = req.params.id
         const restaurant = await Restaurant.findById(req.params.id)
-        if(!restaurant){
-            return resp.status(400).json({message:"Restaurant not found"})
+        if (!restaurant) {
+            return resp.status(400).json({ message: "Restaurant not found" })
         }
-        return resp.status(200).json({message:"Restaunat data fetched successfully",restaurant})
+        return resp.status(200).json({ message: "Restaunat data fetched successfully", restaurant })
     }
-    catch(error){
-        return resp.status(500).json({message:"Internal Server Error",error:error.message})
+    catch (error) {
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
