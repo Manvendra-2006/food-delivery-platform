@@ -31,4 +31,5 @@ const cartSchema = mongoose.Schema({
 },{
     timestamps:true
 })
+cartSchema.index({restaurantId:1,userId:1,menuId:1},{unique:true})
 export default mongoose.model("Cart",cartSchema)
