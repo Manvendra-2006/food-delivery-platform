@@ -8,7 +8,7 @@ const addressModel = mongoose.Schema({
         type:String,
         required:true
     },
-    formattedAdress:{
+    formattedAddress:{
         type:String,
         required:true
     },

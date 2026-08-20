@@ -10,5 +10,5 @@ app.use(cors({
     credentials:true
 }))
 app.use("/api/restaurant",restaurantRouter)
-app.use("/apit/address",addressRouter)
+app.use("/api/address",addressRouter)
 export default app

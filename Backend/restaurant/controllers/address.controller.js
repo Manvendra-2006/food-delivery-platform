@@ -8,7 +8,7 @@ export async function addAddress(req,resp){
         }
         const {formattedAddress , phoneNo, latitude,longitude} = req.body
         if(!formattedAddress||!phoneNo||!latitude||!longitude){
-         return resp.status(400).json({ message: "Restaurnat Id and Menu Id are required" })
+         return resp.status(400).json({ message: "All fileds are reuired" })
         }
         const address = await Address.create({
                 userId,
