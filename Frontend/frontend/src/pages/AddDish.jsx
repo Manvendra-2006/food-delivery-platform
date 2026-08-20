@@ -61,8 +61,8 @@ const AddDish = () => {
       formData.append("description", form.description)
       formData.append("price", form.price)
       formData.append("category", form.category)
-      formData.append("tags", JSON.stringify(form.tags)) 
-      formData.append("file", imageFile) 
+      formData.append("tags", JSON.stringify(form.tags))
+      formData.append("file", imageFile)
 
       await axios.post(
         'http://localhost:2000/api/restaurant/create',
@@ -85,48 +85,48 @@ const AddDish = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f4ef] pb-10 px-4 pt-4">
+    <div className="min-h-screen bg-[#FFFBF5] pb-10 px-4 pt-4">
 
-  
-      <div className="flex items-center gap-3 mb-4">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-5">
         <button
           onClick={() => navigate('/menu')}
-          className="p-2 bg-white rounded-full shadow-sm"
+          className="p-2.5 bg-white rounded-full border border-[#EFE8DD] shadow-sm hover:bg-[#FCEAEA] hover:border-[#E23744]/30 transition text-[#2B211B]"
         >
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Add Dish</h1>
-          <p className="text-gray-500 text-sm">Add a new item to your menu</p>
+          <h1 className="font-serif text-xl font-bold text-[#2B211B]">Add dish</h1>
+          <p className="text-[#8A8078] text-sm">Add a new item to your menu</p>
         </div>
       </div>
 
-  
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {/* Card */}
+      <div className="bg-white rounded-2xl border border-[#EFE8DD] shadow-[0_2px_20px_rgba(43,33,27,0.06)] p-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
-        
+          {/* Image */}
           <div>
-            <label className="text-sm text-gray-500 mb-2 block">Dish Image</label>
+            <label className="text-sm font-semibold text-[#2B211B] mb-2 block">Dish image</label>
             {imagePreview ? (
               <div className="relative">
                 <img
                   src={imagePreview}
                   alt="preview"
-                  className="w-full h-48 object-cover rounded-xl"
+                  className="w-full h-48 object-cover rounded-xl ring-1 ring-black/5"
                 />
                 <button
                   type="button"
                   onClick={removeImage}
-                  className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full"
+                  className="absolute top-2 right-2 bg-black/60 text-white p-1.5 rounded-full hover:bg-black/75 transition"
                 >
                   <X size={16} />
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-xl h-48 cursor-pointer text-gray-400 hover:border-orange-400 hover:text-orange-500 transition">
+              <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-[#E7DFD3] bg-[#FFFDF9] rounded-xl h-48 cursor-pointer text-[#B4AA9C] hover:border-[#E23744]/50 hover:bg-[#FCEAEA] hover:text-[#E23744] transition">
                 <ImagePlus size={28} />
-                <span className="text-sm">Click to upload image</span>
+                <span className="text-sm font-medium">Click to upload image</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -137,33 +137,36 @@ const AddDish = () => {
             )}
           </div>
 
+          {/* Name */}
           <div>
-            <label className="text-sm text-gray-500">Dish Name</label>
+            <label className="text-sm font-semibold text-[#2B211B] mb-1.5 block">Dish name</label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
               required
-              placeholder="e.g. Pan-Seared Duck Breast"
-              className="w-full border rounded-xl px-3 py-2 mt-1"
+              placeholder="e.g. Pan-seared duck breast"
+              className="w-full px-4 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FFFDF9] text-[#2B211B] placeholder:text-[#B4AA9C] outline-none focus:ring-2 focus:ring-[#E23744]/30 focus:border-[#E23744] transition"
             />
           </div>
 
+          {/* Description */}
           <div>
-            <label className="text-sm text-gray-500">Description</label>
+            <label className="text-sm font-semibold text-[#2B211B] mb-1.5 block">Description</label>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
               rows={3}
               placeholder="Short description of the dish..."
-              className="w-full border rounded-xl px-3 py-2 mt-1"
+              className="w-full px-4 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FFFDF9] text-[#2B211B] placeholder:text-[#B4AA9C] outline-none focus:ring-2 focus:ring-[#E23744]/30 focus:border-[#E23744] transition resize-none"
             />
           </div>
 
+          {/* Price + Category */}
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="text-sm text-gray-500">Price ($)</label>
+              <label className="text-sm font-semibold text-[#2B211B] mb-1.5 block">Price ($)</label>
               <input
                 name="price"
                 type="number"
@@ -172,34 +175,35 @@ const AddDish = () => {
                 onChange={handleChange}
                 required
                 placeholder="0.00"
-                className="w-full border rounded-xl px-3 py-2 mt-1"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FFFDF9] text-[#2B211B] placeholder:text-[#B4AA9C] outline-none focus:ring-2 focus:ring-[#E23744]/30 focus:border-[#E23744] transition"
               />
             </div>
             <div className="flex-1">
-              <label className="text-sm text-gray-500">Category</label>
+              <label className="text-sm font-semibold text-[#2B211B] mb-1.5 block">Category</label>
               <select
                 name="category"
                 value={form.category}
                 onChange={handleChange}
-                className="w-full border rounded-xl px-3 py-2 mt-1"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#E7DFD3] bg-[#FFFDF9] text-[#2B211B] outline-none focus:ring-2 focus:ring-[#E23744]/30 focus:border-[#E23744] transition"
               >
                 {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
             </div>
           </div>
 
+          {/* Tags */}
           <div>
-            <label className="text-sm text-gray-500 mb-2 block">Tags</label>
+            <label className="text-sm font-semibold text-[#2B211B] mb-2 block">Tags</label>
             <div className="flex flex-wrap gap-2">
               {availableTags.map(tag => (
                 <button
                   type="button"
                   key={tag}
                   onClick={() => toggleTag(tag)}
-                  className={`px-3 py-1.5 rounded-full text-sm border
+                  className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition
                     ${form.tags.includes(tag)
-                      ? "bg-orange-600 text-white border-orange-600"
-                      : "border-gray-300 text-gray-600"}`}
+                      ? "bg-[#E23744] text-white border-[#E23744]"
+                      : "border-[#E7DFD3] text-[#5C534C] bg-[#FFFDF9] hover:border-[#E23744]/40"}`}
                 >
                   {tag}
                 </button>
@@ -207,20 +211,21 @@ const AddDish = () => {
             </div>
           </div>
 
-          <div className="flex gap-3 mt-2">
+          {/* Actions */}
+          <div className="flex gap-3 mt-1">
             <button
               type="button"
               onClick={() => navigate('/menu')}
-              className="flex-1 border border-gray-300 text-gray-600 rounded-xl py-3 font-semibold"
+              className="flex-1 border border-[#E7DFD3] text-[#5C534C] rounded-xl py-3 font-semibold hover:bg-[#FFFDF9] transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-orange-600 text-white rounded-xl py-3 font-semibold disabled:opacity-60"
+              className="flex-1 bg-[#E23744] hover:bg-[#C42A36] active:scale-[0.99] text-white rounded-xl py-3 font-semibold disabled:bg-[#D9D2C6] disabled:cursor-not-allowed transition-all shadow-sm"
             >
-              {saving ? "Saving..." : "Add Dish"}
+              {saving ? "Saving..." : "Add dish"}
             </button>
           </div>
         </form>

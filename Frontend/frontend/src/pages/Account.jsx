@@ -28,125 +28,101 @@ const Account = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 px-4 py-8">
-
+        <div className="min-h-screen bg-[#FFFBF5] px-4 py-10">
             <div className="mx-auto max-w-md">
+                <div className="overflow-hidden rounded-2xl bg-white border border-[#EFE8DD] shadow-[0_2px_20px_rgba(43,33,27,0.06)]">
 
-                <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
-
-                
-                    <div className="flex flex-col items-center border-b p-6">
-
-                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-500 text-3xl font-semibold text-white">
+                    {/* Profile header */}
+                    <div className="flex flex-col items-center p-8 bg-gradient-to-b from-[#FCEAEA] to-white border-b border-[#F1E4E2]">
+                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#E23744] text-3xl font-semibold text-white ring-4 ring-white shadow-sm">
                             {firstletter}
                         </div>
 
-                        <h2 className="mt-4 text-xl font-semibold text-gray-800">
+                        <h2 className="mt-4 font-serif text-xl font-bold text-[#2B211B]">
                             {user?.name}
                         </h2>
 
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-[#8A8078]">
                             {user?.email}
                         </p>
                     </div>
 
-                   
+                    {/* Account info */}
                     <div className="p-5">
-
-                        <h3 className="mb-4 text-sm font-semibold uppercase text-gray-400">
-                            Account Information
+                        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#B4AA9C]">
+                            Account information
                         </h3>
 
-                 
-                        <div className="mb-4 flex items-center gap-4 rounded-lg bg-gray-50 p-4">
-                            <FiUser className="text-xl text-gray-500" />
-
+                        <div className="mb-3 flex items-center gap-4 rounded-xl bg-[#FFFBF5] border border-[#EFE8DD] p-4">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E23744]/10">
+                                <FiUser className="text-base text-[#E23744]" />
+                            </div>
                             <div>
-                                <p className="text-xs text-gray-400">
-                                    Name
-                                </p>
-
-                                <p className="font-medium text-gray-700">
-                                    {user?.name}
-                                </p>
+                                <p className="text-xs text-[#B4AA9C]">Name</p>
+                                <p className="font-medium text-[#2B211B]">{user?.name}</p>
                             </div>
                         </div>
 
-                  
-                        <div className="mb-4 flex items-center gap-4 rounded-lg bg-gray-50 p-4">
-                            <FiMail className="text-xl text-gray-500" />
-
+                        <div className="mb-3 flex items-center gap-4 rounded-xl bg-[#FFFBF5] border border-[#EFE8DD] p-4">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E23744]/10">
+                                <FiMail className="text-base text-[#E23744]" />
+                            </div>
                             <div>
-                                <p className="text-xs text-gray-400">
-                                    Email
-                                </p>
-
-                                <p className="font-medium text-gray-700">
-                                    {user?.email}
-                                </p>
+                                <p className="text-xs text-[#B4AA9C]">Email</p>
+                                <p className="font-medium text-[#2B211B]">{user?.email}</p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4 rounded-lg bg-gray-50 p-4">
-                            <FiShield className="text-xl text-gray-500" />
-
+                        <div className="flex items-center gap-4 rounded-xl bg-[#FFFBF5] border border-[#EFE8DD] p-4">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E23744]/10">
+                                <FiShield className="text-base text-[#E23744]" />
+                            </div>
                             <div>
-                                <p className="text-xs text-gray-400">
-                                    Role
-                                </p>
-
-                                <p className="font-medium capitalize text-gray-700">
-                                    {user?.role || "Not Selected"}
+                                <p className="text-xs text-[#B4AA9C]">Role</p>
+                                <p className="font-medium capitalize text-[#2B211B]">
+                                    {user?.role || "Not selected"}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="border-t p-5">
-
+                    {/* Orders */}
+                    <div className="px-5">
                         <button
                             onClick={() => navigate("/orders")}
-                            className="flex w-full items-center justify-between rounded-lg border border-gray-200 px-4 py-3 font-medium text-gray-700 transition hover:bg-gray-50"
+                            className="flex w-full items-center justify-between rounded-xl border border-[#EFE8DD] px-4 py-3.5 font-medium text-[#2B211B] transition hover:border-[#E23744]/30 hover:bg-[#FCEAEA]"
                         >
                             <div className="flex items-center gap-3">
-                                <FiShoppingBag className="text-xl text-gray-500" />
-
-                                <span>Your Orders</span>
+                                <FiShoppingBag className="text-lg text-[#E23744]" />
+                                <span>Your orders</span>
                             </div>
-
-                            <span className="text-gray-400">
-                                →
-                            </span>
+                            <span className="text-[#B4AA9C]">→</span>
                         </button>
-
                     </div>
-<div className="mt-3">
-    <button
-        onClick={() => navigate("/address")}
-        className="flex w-full items-center justify-between rounded-lg border border-gray-200 px-4 py-3 font-medium text-gray-700 transition hover:bg-gray-50"
-    >
-        <div className="flex items-center gap-3">
-            <FiMapPin className="text-xl text-gray-500" />
 
-            <span>Address</span>
-        </div>
+                    {/* Address */}
+                    <div className="p-5">
+                        <button
+                            onClick={() => navigate("/address")}
+                            className="flex w-full items-center justify-between rounded-xl border border-[#EFE8DD] px-4 py-3.5 font-medium text-[#2B211B] transition hover:border-[#E23744]/30 hover:bg-[#FCEAEA]"
+                        >
+                            <div className="flex items-center gap-3">
+                                <FiMapPin className="text-lg text-[#E23744]" />
+                                <span>Address</span>
+                            </div>
+                            <span className="text-[#B4AA9C]">→</span>
+                        </button>
+                    </div>
 
-        <span className="text-gray-400">
-            →
-        </span>
-    </button>
-</div>
-              
-                    <div className="border-t p-5">
-
+                    {/* Logout */}
+                    <div className="border-t border-[#F1E4E2] p-5">
                         <button
                             onClick={logoutHandler}
-                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-500 px-4 py-3 font-medium text-white transition hover:bg-red-600"
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#E23744] px-4 py-3.5 font-semibold text-white transition hover:bg-[#C42A36] active:scale-[0.99]"
                         >
                             <FiLogOut className="text-lg" />
                             Logout
                         </button>
-
                     </div>
 
                 </div>

@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AppProvider } from './context/AppContext.jsx';
+import "leaflet/dist/leaflet.css"
 export const authService = 'http://localhost:1000'
 
 createRoot(document.getElementById('root')).render(
