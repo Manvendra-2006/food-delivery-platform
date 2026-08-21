@@ -93,4 +93,21 @@ export async function createOrder(req, resp) {
     }
 }
 
-
+export async function fetchOrderForPayment(req,resp){
+        try{
+            if(req.headers['x-internal-key'] !== process.env.INTERNAL_SERVICE_KEY){
+                return resp.status(403).json({message:"ForBidded"})
+            }
+            const order = await Order.findById(req.params.id)
+            if(!order){
+                return resp.status(404).json({message:"Order not found"})
+            }
+            if(order.paymentStatus !== "pending"){
+                return resp.status(400).json({message:"Order Already paid"})
+            }
+            return resp.status(200).json({message:"Order is fetched successfully",orderId:order._id,amount:order.totalAmount,currency:"INR"})
+        }
+        catch(error){
+        return resp.status(500).json({ message: "Internal Server Error", error: error.message })
+        }
+}
