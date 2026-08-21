@@ -1,6 +1,7 @@
 import express from 'express'
 import cloudinary from 'cloudinary'
 import router from './routes/cloudinary.js'
+import paymentRouter from './routes/payment.routes.js'
 const app = express()
 app.use(express.json({limit:"50mb"}))
 app.use(express.urlencoded({extended:true,
@@ -18,4 +19,5 @@ cloudinary.v2.config({
 })
 
 app.use("/api",router)
+app.use("/api/payment",paymentRouter)
 export default app
