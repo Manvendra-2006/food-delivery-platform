@@ -12,12 +12,12 @@ export async function createRazorpayOrder(req,resp){
         })
 
         const razorpayOrder = await razorpay.orders.create({
-            amount:data.amount ,
+            amount:data.amount *100 ,
             currency:"INR",
             receipt:orderId
         })
         return resp.status(200).json({razorpayOrderId:razorpayOrder.id,
-                key:process.env.RAZORPAY_SECRET_KEY
+                key:process.env.RAZORPAY_KEY_ID
         })
     }
     catch(error){
@@ -32,7 +32,7 @@ export async function verifyRazorpayPayment(req,resp){
         if(!isValid){
             return resp.status(400).json({message:"Payment verification failed"})
         }
-        await publishPaymentSuccess({orderId,paymentId,provider:"razorpay"})
+        await publishPaymentSuccess({orderId,paymentId:razorpay_payment_id,provider:"razorpay"})
         resp.json({message:"Payment Verified Successfully"})
     }
     catch(error){
