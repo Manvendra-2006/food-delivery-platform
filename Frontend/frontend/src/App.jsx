@@ -17,6 +17,7 @@ import EditDish from "./pages/EditDish"
 import RestaurantPage from "./pages/RestaurantPage"
 import Address from "./pages/Address"
 import CheckOut from "./pages/CheckOut"
+import PaymentSuccess from "./pages/PaymentSuccess"
 function SellerRouteGuard() {
   const { user } = useContext(AppContext)
   const location = useLocation()
@@ -60,7 +61,8 @@ function App() {
             <Route path="/menu/add" element={<AddDish />} />
             <Route path="/menu/edit/:id" element={<EditDish />} />
             <Route path="/restaurant/:id" element={<RestaurantPage/>} />
-            <Route path="/address" element={<Address/>}/>                      
+            <Route path="/address" element={<Address/>}/>   
+             <Route path="/payment-success" element={<PaymentSuccess />} />                   
           </Route>
         </Routes>
         <Toaster />
