@@ -18,7 +18,7 @@ export async function createOrder(req, resp) {
                 message: "Valid distance is required"
             })
         }
-        const userId = req.userData._id
+        const userId = req.user.userData._id
         if (!userId) {
             return resp.status(404).json({ message: "UserId is required" })
         }
@@ -60,7 +60,7 @@ export async function createOrder(req, resp) {
         }
         const deliveryFees = subTotal < 250 ? 49 : 0
         const platformFee = 7;
-        const totalAmount = subTotal + deliveryFees + platformFee
+        const totalAmount = (subTotal + deliveryFees + platformFee ) * 100
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
         const riderAmount = Math.ceil(distance) * 17
         const order = await Order.create({

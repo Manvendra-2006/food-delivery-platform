@@ -2,10 +2,10 @@ import Order from "../models/order.model.js";
 import { getChannel } from "./rabbitmq.js";
 export async function startPaymentConsumer() {
     const channel = getChannel()
-    channel.consume(process.env.PAYMENT_QUEUE, async () => {
-        if (!msg) return;
+    channel.consume(process.env.PAYMENT_QUEUE, async (msg) => {
+        if (!msg) return
         try {
-            const event = JSON.stringify(msg.content.toString())
+            const event = JSON.parse(msg.content.toString())
             if (event.type !== "PAYMENT_SUCCESS") {
                 channel.ack(msg)
                 return;
@@ -18,12 +18,11 @@ export async function startPaymentConsumer() {
                 $set: {
                     paymentStatus: "paid",
                     status: "placed"
+                },
+                $unset: {
+                    expiresAt: 1
                 }
-            },{
-                $unset:{
-                    expiresAt:1,
-                }
-            },{new:true})
+            }, { new: true })
             if(!order){
                 channel.ack(msg)
                 return ;
