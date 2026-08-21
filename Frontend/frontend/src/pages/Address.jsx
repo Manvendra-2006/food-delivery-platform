@@ -2,12 +2,10 @@ import {MapContainer,TileLayer,Marker,useMapEvents,useMap} from "react-leaflet";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
- //import { restaurantService } from "../main";
 import L from "leaflet";
 import { LuLocateFixed } from "react-icons/lu";
 import { BiLoader, BiPlus, BiTrash } from "react-icons/bi";
 
-// 🔧 Fix Leaflet marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
@@ -21,7 +19,7 @@ L.Icon.Default.mergeOptions({
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-// 📍 Click-to-select location
+
 const LocationPicker = ({ setLocation }) => {
   useMapEvents({
     click(e) {
@@ -31,8 +29,6 @@ const LocationPicker = ({ setLocation }) => {
 
   return null;
 };
-
-// 🎯 Locate me button
 const LocateMeButton = ({ onLocate }) => {
   const map = useMap();
 
@@ -61,29 +57,22 @@ const LocateMeButton = ({ onLocate }) => {
   return (
     <button
       onClick={locateUser}
-      className="absolute right-3 top-3 z-[1000] flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm shadow hover:bg-gray-100"
+      className="absolute right-3 top-3 z-[1000] flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-[#2B211B] shadow-[0_2px_10px_rgba(43,33,27,0.12)] border border-[#EFE8DD] hover:bg-[#FCEAEA] hover:border-[#E23744]/30 hover:text-[#E23744] transition"
     >
       <LuLocateFixed size={16} />
       Use current location
     </button>
   );
 };
-
 const Address = () => {
   const [addresses, setAddresses] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-
-  // 📋 Form state
   const [mobile, setMobile] = useState("");
   const [formattedAddress, setFormattedAddress] = useState("");
-
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
-
-  // 🌍 Reverse geocoding
   const fetchFormattedAddress = async (lat, lng) => {
     try {
       const res = await fetch(
@@ -97,16 +86,12 @@ const Address = () => {
       toast.error("Failed to fetch address");
     }
   };
-
-  // 📍 Set selected location
   const setLocation = (lat, lng) => {
     setLatitude(lat);
     setLongitude(lng);
 
     fetchFormattedAddress(lat, lng);
   };
-
-  // 📡 Fetch saved addresses
   const fetchAddresses = async () => {
     try {
       const { data } = await axios.get(
@@ -130,7 +115,6 @@ const Address = () => {
     fetchAddresses();
   }, []);
 
-  // ➕ Add address
   const addAddress = async () => {
     if (
       !mobile ||
@@ -177,7 +161,6 @@ const Address = () => {
     }
   };
 
-  // 🗑 Delete address
   const deleteAddress = async (id) => {
     if (!window.confirm("Delete this address?")) return;
 
@@ -204,14 +187,12 @@ const Address = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
+    <div className="mx-auto max-w-4xl space-y-6 bg-[#FFFBF5] px-4 py-6">
 
-      <h1 className="text-2xl font-bold">
+      <h1 className="font-serif text-2xl font-bold text-[#2B211B]">
         Select Delivery Address
       </h1>
-
-      {/* 🗺 Map */}
-      <div className="relative h-[400px] w-full overflow-hidden rounded-lg border">
+      <div className="relative h-[400px] w-full overflow-hidden rounded-2xl border border-[#EFE8DD] shadow-[0_2px_20px_rgba(43,33,27,0.06)]">
 
         <MapContainer
           center={[
@@ -230,18 +211,12 @@ const Address = () => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           />
-
-          {/* Click on map */}
           <LocationPicker
             setLocation={setLocation}
           />
-
-          {/* Locate current location */}
           <LocateMeButton
             onLocate={setLocation}
           />
-
-          {/* Selected location marker */}
           {latitude !== null &&
             longitude !== null && (
               <Marker
@@ -251,28 +226,22 @@ const Address = () => {
 
         </MapContainer>
       </div>
-
-      {/* 📍 Selected address */}
       {formattedAddress && (
-        <div className="rounded-lg border bg-green-50 p-3 text-sm">
+        <div className="rounded-xl border border-[#EFE8DD] bg-[#FCEAEA] p-3 text-sm text-[#2B211B]">
           📍 {formattedAddress}
         </div>
       )}
-
-      {/* 📱 Mobile */}
       <input
         type="tel"
         placeholder="Mobile number"
         value={mobile}
         onChange={(e) => setMobile(e.target.value)}
-        className="w-full rounded-lg border px-4 py-2"
+        className="w-full rounded-xl border border-[#E7DFD3] bg-[#FFFDF9] px-4 py-2.5 text-[#2B211B] placeholder:text-[#B4AA9C] outline-none focus:ring-2 focus:ring-[#E23744]/30 focus:border-[#E23744] transition"
       />
-
-      {/* ➕ Save */}
       <button
         disabled={adding}
         onClick={addAddress}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#E23744] px-4 py-3 text-white hover:bg-[#d32f3a] disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#E23744] px-4 py-3 font-semibold text-white shadow-sm hover:bg-[#C42A36] active:scale-[0.99] disabled:bg-[#D9D2C6] disabled:cursor-not-allowed transition-all"
       >
         {adding ? (
           <BiLoader className="animate-spin" />
@@ -283,34 +252,33 @@ const Address = () => {
         Save Address
       </button>
 
-      {/* 📋 Saved Addresses */}
+     
       <div className="space-y-3">
 
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-lg font-semibold text-[#2B211B]">
           Saved Addresses
         </h2>
 
         {loading ? (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[#8A8078]">
             Loading...
           </p>
         ) : addresses.length === 0 ? (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[#8A8078]">
             No addresses saved
           </p>
         ) : (
           addresses.map((addr) => (
             <div
               key={addr._id}
-              className="flex items-center justify-between rounded-lg border bg-white p-3"
+              className="flex items-center justify-between rounded-xl border border-[#EFE8DD] bg-white p-3 shadow-[0_2px_10px_rgba(43,33,27,0.04)] hover:border-[#E23744]/20 transition"
             >
 
               <div>
-                <p className="text-sm font-medium">
+                <p className="text-sm font-medium text-[#2B211B]">
                   {addr.formattedAddress}
                 </p>
-
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[#8A8078]">
                   📞 {addr.mobile}
                 </p>
               </div>
@@ -320,7 +288,7 @@ const Address = () => {
                   deleteAddress(addr._id)
                 }
                 disabled={deletingId === addr._id}
-                className="rounded-lg p-2 text-red-500 hover:bg-red-50 disabled:opacity-50"
+                className="rounded-lg p-2 text-[#E23744] hover:bg-[#FCEAEA] disabled:opacity-50 transition"
               >
 
                 {deletingId === addr._id ? (

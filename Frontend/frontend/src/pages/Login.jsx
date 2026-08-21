@@ -45,19 +45,24 @@ const Login = () => {
         flow:"auth-code"
     })
   return (
-    <div className='flex min-h-screen items-center justify-center bg-white px-4'>
-        <div className='w-full max-w-sm space-y-6'>
-            <h1 className='text-center text-3xl font-bold text-[#E23774]'>
-                Tomato
-            </h1>
-            <p className='text-center text-sm text-gray-500'>Login in or sign up to continue </p>
-            <button onClick={googleLogin} disabled={loading} className='flex w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3'>
+    <div className='flex min-h-screen items-center justify-center bg-gradient-to-b from-[#FFFBF5] to-[#FCEAEA]/40 px-4'>
+        <div className='w-full max-w-sm space-y-6 bg-white border border-[#EFE8DD] rounded-2xl shadow-[0_4px_28px_rgba(43,33,27,0.08)] p-8'>
+            <div className='flex flex-col items-center gap-1'>
+                <div className='w-14 h-14 rounded-2xl bg-gradient-to-br from-[#E23744]/15 to-[#E23744]/5 flex items-center justify-center mb-1 ring-1 ring-[#E23744]/10'>
+                    <span className='font-serif text-2xl font-bold text-[#E23744]'>T</span>
+                </div>
+                <h1 className='font-serif text-center text-3xl font-bold text-[#E23744]'>
+                    Tomato
+                </h1>
+                <p className='text-center text-sm text-[#8A8078]'>Login in or sign up to continue </p>
+            </div>
+            <button onClick={googleLogin} disabled={loading} className='flex w-full items-center justify-center gap-3 rounded-xl border border-[#E7DFD3] bg-[#FFFDF9] px-4 py-3 font-medium text-[#2B211B] shadow-sm hover:bg-white hover:border-[#E23744]/30 active:scale-[0.99] disabled:opacity-60 transition-all'>
                 <FcGoogle size={20}/>
                 {loading ? "Signing in....":"Continue with google"}
             </button>
-            <p className='text-center text-xs text-gray-400'>
-                By continuning , you agree with our <span className='text-[#E23774]'>Term of services</span> & 
-                <span className='text-[#E23774]'>Privae Policy</span>
+            <p className='text-center text-xs text-[#B4AA9C]'>
+                By continuning , you agree with our <span className='text-[#E23744] font-medium'>Term of services</span> & 
+                <span className='text-[#E23744] font-medium'>Privae Policy</span>
             </p>
             
         </div>

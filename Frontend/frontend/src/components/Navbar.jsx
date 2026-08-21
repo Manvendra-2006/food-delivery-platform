@@ -22,6 +22,10 @@ const Navbar = () => {
         return () => clearTimeout(timer)
     }, [search])
 
+    if (currentLocation.pathname === "/login") {
+        return null
+    }
+
     return (
         <div className='w-full bg-white/95 backdrop-blur-sm border-b border-[#F1E4E2] sticky top-0 z-40'>
             <div className='mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5'>
